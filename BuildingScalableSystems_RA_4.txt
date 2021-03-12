@@ -1,0 +1,11 @@
+--> In this course we will look at a balance between consistency and availability in distributed systems.
+--> A system is said to be scalable, if it can meet increases in demand while remaining responsive.
+--> A system is said to be consistent, if all memebers of the system have same view or state.
+--> A system is said to be available, if it remains responsive despite any failures.
+
+========Scalability==============
+-->Perfomance and Scalability are related, but different concepts. Performance optimizes response time. Scalability optimizes ability to handle load.
+--> Improving Performance speeds up response time (i.e the latency), total number of requests (e.g load) may not change.
+--> Improving Scalability increases ability to handle load. Performance of each request may not change.
+--> Requests/second is a way to measure Performance and Scalability. Performance has a limit, can't go to zero response time, but theoretically no limit on Scalability.
+--> Reactive Microservices tend to focus on Scalability.

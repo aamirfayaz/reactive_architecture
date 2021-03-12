@@ -1,0 +1,127 @@
+==Monolithic===
+--> Disadvantages: No clear isolation in the application, complex dependencies, hard to understand and modify. [Ball of mud, applicable only to worst monolith design]
+--> To clean up this ball of mud, we introduce isolation into application, we divide application along clear domain boundaries.
+--> We introduce libraries that help isolate related pieces of code
+-> Libraries provide a clean and consistent interface.
+--> Characteristics of a monolith: [Deployed as a single unit, Single shared database, communicate with synchronous method calls(request/response scenario), 
+	Deep Coupling between libraries and components(often through the DB), Big Bang Style release, Long cycle times(weeks to months)
+	Teams carefully synchronize features and releases]
+	
+--> Scala a Monolith: [Multiple copies of the monolith are deployed:each copy is independent:they don't communicate with each other, the database
+						provides consistency between deployed instances]
+						
+--> Advantages of Monolith: [Easy cross modules refactoring, easy to maintain consistency(single database), Single Deployment Process, Simple this to monitor,
+							Simple Scalability Model]
+--> DisAdvantages of Monolith: [Limited by the maximum size of a single physical machine, only scales as far as database will allow, 
+								components must scale as a group, deep coupling leads to inflexibility, development is slow(change is slow, build time long),
+								Serious failure in one component often bring down the whole monolith(Retribution of load  can cause cascading failures 
+								(when one monolith goes down it forward load to other instance)]
+							
+==Service Oriented Architecture==
+-> In Monolith, for worst case scenario, we have ball of mud, we introduce isolation into application, we divide application along clear domain boundaries.
+-> There is another way we can introduce additional isolation, by using SOA
+-> Here, services don't share a database, this reduces coupling.
+-> All access must go through the API exposed by the service.
+-> Services may live in the same process(monolith) or may be separated(microservice) 
+-> why its not same as microservice, it doesn't talk about deployments (we can deploy as a whole, monolith, our choice, our like separately: just like microservices)
+
+==MicroServices==
+Microservice architecture is an architectural design pattern which builds an application as collection of small  autonomous services deployed for a business domain
+--> Microservices are a subset of SOA
+--> Logical components are separated into isolated microservices
+--> Microservices can be physically separated and independently deployed
+--> Each Component/microservice has its own independent data store
+--> Microservices are independent and self governing
+Characteristics:
+-> Each Service is deployed independently
+-> Multiple independent databases
+-> Communication is synchronous or asynchronous (Reactive Microservices)
+-> Loose coupling between components
+-> Rapid Deployment (possibly continuous)
+-> Teams release features when they are ready
+-> Teams often organized around a DevOps approach (one team responsible for everything, development, deployment: opposite of monolith)
+
+Scaling a Microservice application:
+->Each microservice is scaled independently
+->could be one or more copies of a service per machine
+-> Each machine hosts a subset of the entire system
+Advantages:
+->Individual services can be scaled/deployed independently
+-> Increased availability: Serious Failures are isolated to a single service (if reservation service fails others won't affected, so other parts work fine in the system)
+->Isolation/decoupling provides more flexibility to evolve within a modules (separate module changes . change code independently, but API should remain the same)
+-> Supports multiple platforms and languages
+
+MicroServices Team Organization:
+->Microservice often comes with organizational change
+->Teams operate more independently
+-> Release cycles are shorter
+-> Cross team coordination becomes less necessary
+-> These changes can facilitate an increase in productivity
+
+Disadvantages:
+-> May require multiple complex deployment and monitoring approach
+-> Cross service refactoring is more challenging
+-> Requires supporting old API versions (becoz some modules are using old version)
+-> Organizational changes to microservice can be challenging
+-> Increases troubleshooting challenges
+
+[Responsibility of Microservice]Single Responsibility Principle:
+-> Robert C Martin, a class should have only one reason to change.
+-> A micorservice should have a single responsibility (e.g managing accounts)
+-> A change to the internals of one microservice should not necessitate a change to another microservice
+
+==Principles of Isolation===============
+-> As we moved from Monoliths to Microservices we are introducing more isolation. Isolation provides reduced coupling and increased scalability.
+-> Reactive microservices are isolated in: State, Space, Time, Failure.
+   --> Isolation of state: all access to microservice's state must go through its API, no backdoor access via the database. It allows microservice to 
+   	evolve internally without affecting the outside.
+   --> Isolation in space: Microservices should not care where other microservices are deployed.It should be possible to move a microservice to another machine,
+   	possibly in a different data center without issue.Allows the microservice to be scaled up/down to meet demand.
+   --> Isolation in time: Microservices should not wait for each other.Requests are asynchronous and non-blocking. (More efficent use of resources. Resources can
+   	be freed immediately, rather than waiting for a request to finish.)
+   	Between microservices we expect eventual consistency (Provides increased scalability.
+   	Total consistency requires central coordination with limits scalability)	
+   --> Isolation of failure: Reactive microservices also isolate failure. A failure in one microservice should not cause another to fail. Allows the system to 
+   	remain operational in spite of failure.
+   	
+Bulk-Heading: e.g ship bulkheading 
+->A particular technique for isolating failures is called as BulkHeading. Failures are isolated to failure zones. Failure in one service will not proagate to other service.
+  overall system will remain functional (possibly in a degraded state)
+ 
+Circuit Breakers: another technique for isolating failures 
+--> What happens when a service depends on another that is overloaded? calls to the overloaded service may fail. The caller may not realize that the service is under stress and
+    retry. The retry makes the load worse. Callers may need to be careful to avoid this.
+--> Circuit Breakers are a way to avoid overloading a service. They quarantine a failing service so it can fail fast. Allows the failing service time to recover without overloading it.
+     Akka and lagom both feature circuit breakers.
+--> Closed(Normal) State, changes to  Open State(Fail Fast, immediately fail API call to it, one disadvantage, so we may lose retry from external side )  e.g when we trip circuit breaker,
+    can attempt reset, Half-Open can be reset for again, or trip to Open to fail fast. A half-open state allows a single request through.
+    
+Asynchronous Messaging:
+--> Async, non-blocking messaging allows us to decouple both time and failures.
+--> Services are not dependent on the response from each other.
+--> if a request to a service fails, the failure won't propogate.
+--> The client service is not waiting for a response. It can continue to operate normally.
+
+Autonomy:
+--> We build system using the principles of isolation to achieve Autonomy. Autonomy means each service we build can operate independently. Advantages:
+    --> Microservices can only guarantee their own behaviour (via their API)
+    --> Autonomous services have enough information to resolve conflicts and repair failures.
+    --> They don't require other services to be operational all the time. 
+    --> Autonomy allows for stronger scalability and availability.
+    --> Fully autonomous services can be scaled indefinitely.
+    --> operating independently means that they can tolerate any amount of failures.
+    --> Few services will be fully autonomous, but the closer we get, the better. Now, Achieving Autonomy:
+    --> Communicate only through asynchrounous messages.
+    --> Maintain enough internal state for the microservice to function in isolation.
+    --> Use Eventual Consistency.
+    --> Avoid direct, synchronous dependencies on external services.
+    
+GateWay Services:
+--> Microservices can lead to complexities in the API. A single request may require information from multiple microservices. Client could send out many requests, and
+    aggreagate the results, but this may be too complex. How can we manage complex APIs that access many microservices, keeping client in picture? API GateWay Services
+--> Requests can be send through a Gateway service.
+--> A GateWay Service sends the request to individual microservice and aggregates the responses.
+--> Logic for aggregation is moved out of the client and into the gateway service.
+--> Gateway handles failures from each service. Client only needs to deal with possible failure from the gateway.
+		
+
