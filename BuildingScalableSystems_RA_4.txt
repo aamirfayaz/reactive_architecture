@@ -9,3 +9,103 @@
 --> Improving Scalability increases ability to handle load. Performance of each request may not change.
 --> Requests/second is a way to measure Performance and Scalability. Performance has a limit, can't go to zero response time, but theoretically no limit on Scalability.
 --> Reactive Microservices tend to focus on Scalability.
+
+==========Consistency=================
+--> Distributed systems are systems that are separated by space.
+--> Physics puts an upper limit on information speed (The Speed of Light)
+--> When two systems are separated by space, there is always time required to reach consensus. 
+--> In the time it takes to transfer the information, the state of the original sender may have changed.
+--> The problem is, this means that the receiver of that information is always dealing with stale data.
+--> This applies whether we are talking about computer science, people, or even just the physical world.
+--> Reality is therefore Eventually Consistent.
+--Eventual Consistency ----
+--> E.C guarantees that, in the absence of new updates, all accesses to a specific piece of data will eventually return the most recent value.
+--> E.C: In order to reach a state of consistency, you have to stop all updates, at-least for some period of time in order to reach that level of consistency.
+--Strong Consistency ----
+--> An update to a piece of data need agreement from all nodes before it become visible.
+--Strong Consistency in an Eventually Consistent world--
+--> Physics prevents Strong Consistency, so mechanisms are introduced to simulate it.
+--> Locks allows systems to simulate Strong Consistency.
+--> Distributed systems are isolated to non-distributed locks.
+--> Locks introduce overhead in the form of a contention (hinders our ability to be elastic, resilient etc), so cost associated to it.
+ --> Collaborating on Code Cloud Edits with acquiring locks is a good example of Strong Consistency.
+ --> Modern Version Control systems are Eventually Consistent, they attain consistency through merge.
+ 
+ ===The Effects of Contention============
+ --> Any two things that contend for a single resource are in competiton.This competiton has one winner, others are forced to wait for winner to complete.
+     As the number of things competing increases, the time to free up the resource increases. As load increases, we will eventually exceed acceptable time limits.	
+ --> Amdahl's law defines the maximum improvement gained by parallel processing.
+ --> Improvements from parallelization are limited to the code that can be parallized.
+ --> Contention limits parallelization and therefore reduces the improvement.
+ --> Amdahl's law shows the effect of contention on a distributed system.
+ --> A key part of Amdahl's Law is to recognize that Contention limits parallelization.
+ --> OR even if we try to parallelize, if we have contention in our systems, then we will get diminishing results.
+ 
+ =====Coherency Delay==================
+ --> In distributed system, synchronization of the state of multiple nodes is done using crosstalk or gossip.
+ --> Each node in the system will send messages to every other node informing them of any state changes till they reach a state of Coherence where they all agree on the state of the system.
+ --> The time it takes for this synchronization to complete is called Coherency Delay.
+ --> Increasing the number of nodes increases the Coherency Delay.
+ --> Gunther's Universal Scalability Law:
+     - Gunther's Universal Scalability Law builds on Amdahl's law.
+     - In addition to contention, it accounts for Coherency Delay.
+     - Coherency Delay results in negative returns.
+     - As the system scales up, the cost to coordinate between nodes exceeds any benefits.	
+--> Gunther's Universal Scalability Law demonstrates that increasing concurrency can cause negative returns due to contention and coherency delay.     
+     ==Goal is to try to get as close as possible to our Linear Scalability line as possible. (--Fantasy--)
+     
+====Laws of Scalability=============
+--> Amdhal's law, Gunther's law of scalability, show was that linear scalability is almost impossible to achieve.
+--> The myth of man-month book: adding manpower to a late software project makes it later. This idea is known as Brooks's law,
+--> Both Amdhal and Gunther law's demonstrate linear scalability is almost always unachievable.
+--> Linear Scalability requires total isolation. Basically Stateless.
+--> Reactive systems understand the limitations imposed by these laws.
+--> They try to exploit the limitations, rather than avoiding them.
+
+====Scalability in Reactive Systems============
+-->Reactive Systems reduce Contention by:
+   - Isolating Locks, Eliminating transactions, Avoiding Blocking Operations.
+--> They mitigate Coherence Dealys by:
+   - Embracing Eventual Consistency.
+   - Building in Autonomy.
+--> This allows for higher Scalability.
+--> The goal is to reduce or eliminate the things that prevent Scalability.   
+
+====CAP Theorm============
+--> Distributed systems must account for the CAP theorm [Eric Brewer].
+--> The CAP theorm states that a distributed sysem can not provides more than two of the following:
+    -> Consistency, Availability, Partition Tolerance.
+--> Partition tolerance means the system continues to operate despite an arbitrary number of messages being 
+    dropped (or delayed) by the network.	    
+--> The theorm talks about trade-offs between Consistency and Availability that we have to make if our system
+    ever suffers partitions.
+--> Formalizes the trade-off between consistency and availability in the presence of partitions.
+--> A read/write "Concern" on NOSql db.In the cluster of database nodes, each node will communicate the current state of the system with other nodes through a form of replication called gossip.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
