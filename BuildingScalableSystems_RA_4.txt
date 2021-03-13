@@ -82,8 +82,110 @@
 --> Formalizes the trade-off between consistency and availability in the presence of partitions.
 --> A read/write "Concern" on NOSql db.In the cluster of database nodes, each node will communicate the current state of the system with other nodes through a form of replication called gossip.
 
+--> Sometimes we need to be consistent (strong), but also allow our systems to scale. Consistency creates Contention. Contention means Scalability will have diminishing,
+    or even negative returns. How can we balance the need for Strong Consistency with the need for Scalability? By Isolating Contention...
+    --> To improve scalability, we seek to eliminate contention, and reduce crosstalk. when they can't be eliminated, we try to isolate them instead.
+    --> Locks with a broad scope (e.g Table Locks) create a lot of contention.
+    --> Locks with a smaller scope (e.g Row/Record Locks) create less contention.
+    --> Reactive system can use a technique called Sharding to limit the scope of the contention, and reduce crosstalk.
+    --> Sharding is applied within the application (rather than the database.)
 
 
+====Sharding for Consistency============
+-->Sharding is a technique that provides strong consistency.Has techniques to minimize communication between the application and the database.
+--> Sharding partitions Entities (or Actors) in the domain according to their Id.
+--> Each Entity exists in only one shard.
+--> Each Shard exists in only one location.
+--> Because each entity lives in only one location, we eliminate the distributed system problem. The Entity acts as a consistency boundary.
+--> simulating, entity A == Reservation A on Shard A-B on 1 node.
+--> A Coordinator ensures traffic for a particular entity is routed to the correct location.
+--> The Id of the Entity is used to calculate the appropriate Shard.
+--> All traffic for a particular entity Id goes through the same entity.
+--> Aggregate Roots are a good candidate for Sharding.
+--> Balancing Shards:
+    - Id or Shard Key selection is important to ensure shards are balanced.
+    - A good shard key provides an even, randomized distribution.
+    - Common Sharding strategies include using UUIDs or hash codes to ensure a randomized distribution.
+    - Poor key selection results in hotspots.
+    -You should aim for approximately 10x as many shards as you have nodes.	
+===Effects of Sharding================
+--> Understanding where its appropriate to use, means what are its benefits/drawbacks.
+--> Contention in a Sharded System:
+  --> Sharding doesn't eliminate Contention, it isolates it.
+  --> within a single entity, there is contention. e.g xerox machine only one we have , with long line of message, here xerox is actor.
+  --> The Router/Coordinator represents a source of contention as well.
+  --> A sharded system minimizes contention by:
+     - Limiting the amount of work the Router/Coordinator performs.
+     - Isolating contention to individual entities.
+--> Sharding, Consistency, and Scalability:
+  --> Scalability is achieved by distributing the shards over more machines.
+  --> Strong Consistency is achieved by isolating operations to a specific entity.
+  --> Careful choice of shard keys is important to maintain good scalability.
+  
+--> Sharding and the CAP Theorm
+  --> Sharding is primarily Consistency (CP) solution, therefore it sacrifices Availability.
+  --> If a shard goes down then there is a period of time where it is unavailable.
+  --> The shard will migrate to another node eventually.
+  
+--> Benefit: Caching With Shards
+  --> Caching is problematic in a distributed system.
+  --> How do you maintain cache consistency with multiple writers.
+  --> Sharding allows each entity to maintain cache consistency.
+  --> The Cache is unique to that entity.
+  --> So all our ops to db are writes only.
+  --> Most applications are read heavy.Almost never going to db, reads straight from Cache, so big benefit.
+
+
+=====Availability and Scalability=================
+--> We established Sharding as a technique we can use when we want Consistency.
+--> It gives us a good balance betweeen Consistency and Scalability.
+--> The CAP Theorm forces us to choose between Consistency or Availability.
+--> What if we would prefer to have Availability rather than Consistency?
+--> CRDTS [Conflict Free Repliated Datatypes]provides a highly available solution based on asynchronous replication.
+
+====CRDTS for availability===========
+--> Applied at the application level [in our code], dbs do also, but here we aren't talking about that.
+--> CRDTs are highly available and Eventually Consistent e.g G-Set
+    - Data is stored on multiple replicas for availability.
+    - Updates are applied on one replica and then copied asynchronously.
+    - Updates are merged to determine final statel.
+    - CRDTs are a solution for Availability (AP) CAP Theorm.
+    - Two Types: CvRDTs(Convergent Repliated Data Types), CmRDTs(Commutative Replicated Data Types)
+    - CvRDTs copy states between replicas, requires a merge operation that understands how to combine two states.
+    - Merge operation must be Commutative(can be applied in any order), Associative(Can be grouped in any order),
+      Idempotent (Duplicated operations don't change the result)
+
+    - CmRDTs copy operations between replicas.
+--> In addition to G-Sets, tehre are several other existing CRDT types including Registers, Counters, Sets, Maps etc.
+--> CRDT data types can be nested to create comples structures.
+--> You can create new data types if you can define an appropriate merge function.
+--> Akka Distributed Data implements CRDTs, Currently only supports CvRDTs, supports various data types including:
+	Counters, Sets, maps, Registers.
+	
+====Effects of CRDTs==========
+--> CRDTs in Distributed Data are stored in memory, Require that the entire sturcture fit into available memory.
+--> They can optionally be copied to disk as well: This speed up recovery if a replica fails, During normal operation
+	, all data is still in memory.
+--> Best used for small data sets, with infrequent updates, that requires high availability.
+--> Limitations:
+	- They don't work with every data type. You must be able to define an appropriate merge function.
+	-Some data types require complex merge functions that require the use of tombstones.
+	- A tombstone is a marker that shows something was deleted.
+	- Tombstones can result in data types that only get larger and never smaller
+--> Distributed Data and the CAP Theorm:
+	- Distributed Data is a solution for High Availability.
+	- Distributed Data will ensure that the data is asynchronously replicated to all nodes.
+	- Distributed Data is primarily intended to be an Availability Solution. It is Eventually Consistent.
+	- Depending on the write consistency you can choose to push it towards a more Consistent approach, at the cost of Availability.
+
+ -->  CRDTs: reduced the amount of contention in the system.
+ 
+ --> So, CAP Theorm gave a challenge to choose between, Strong Consistency or High Availability.
+ --> The choices b/w Consistency and availability isn't a technical but is a business decision.
+ --> Its also rarely an either/or solution. It's usually about balance.
+ --> The decision of when and where to sacrifice Consistency or Availability should be discussed with the
+      domain experts and product owners.
+ --> We need to factor in the impact of revenue if the system is unavailable v/s eventual consistency.      
 
 
 
