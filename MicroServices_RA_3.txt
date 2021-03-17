@@ -1,7 +1,7 @@
 ==Monolithic===
 --> Disadvantages: No clear isolation in the application, complex dependencies, hard to understand and modify. [Ball of mud, applicable only to worst monolith design]
 --> To clean up this ball of mud, we introduce isolation into application, we divide application along clear domain boundaries.
---> We introduce libraries that help isolate related pieces of code
+--> We introduce libraries that help isolate related pieces of code.
 -> Libraries provide a clean and consistent interface.
 --> Characteristics of a monolith: [Deployed as a single unit, Single shared database, communicate with synchronous method calls(request/response scenario), 
 	Deep Coupling between libraries and components(often through the DB), Big Bang Style release, Long cycle times(weeks to months)
@@ -52,8 +52,8 @@ Advantages:
 -> Supports multiple platforms and languages
 
 MicroServices Team Organization:
-->Microservice often comes with organizational change
-->Teams operate more independently
+-> Microservice often comes with organizational change
+-> Teams operate more independently
 -> Release cycles are shorter
 -> Cross team coordination becomes less necessary
 -> These changes can facilitate an increase in productivity

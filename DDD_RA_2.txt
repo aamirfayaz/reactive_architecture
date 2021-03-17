@@ -23,7 +23,7 @@ Domian Driven Design
 -> It is the same order but the relevant details of the Order changes while moving from one BC to another.
 -> Ways to determine Bounded Context, no universal answer, but there are some guidelines, which signal a division:
    --> Consider human culture and interactions.
-   --> Look for changes in Ubiquitous languages.(if the use or meaning of langugae changes, it suggests a new BC)
+   --> Look for changes in Ubiquitous languages.(if the use or meaning of language changes, it suggests a new BC)
    --> Look for varying or unnecessary information in a context (e.g employee id meaningless in a customer so movie to say Employee sub-domain).
    --> Strongly separated bounded-context will result in smooth workflows (an awkward workflow signals misunderstanding of the domain), also, if
 	bounded context has too many dependencies, it may be over-complicated.	
@@ -84,7 +84,7 @@ Like Commands, Events are best when they reveal intent
 -> Messages in Reactive Systems are implemented as Value Object, Discount(reason, price) on order
 
 ==Entity==
--> An entity is defined by a unique identity (i.e and id or key). An entity may changes attributes, but not its identity.
+-> An entity is defined by a unique identity (i.e an id or key). An entity may changes attributes, but not its identity.
    e.g: Person entity, name must be unique, but other attributes (hair color, weight etc) may change, but it will be same entity.
    Entites are single source of truth for a particular id.
    If the identity changes, it is a new entity, regardless of its attributes. Entities may also contain business logic.

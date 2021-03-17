@@ -46,7 +46,7 @@
 
 --> Compensating actions are different than Rollbacks.
 --> Rollback:
-	- Implies the transaction haas not completed.
+	- Implies the transaction has not completed.
 	- Removes evidence of the transaction.
 	
 --> Compensation:
@@ -80,6 +80,7 @@
 --> At Most Once delivery promises that no messages will ever be delivered more than once. No Ack needed.
 --> If a failure occurs, we never retry, so no retry mean: Messages are never duplicated, Messages may be lost.
 	Requires no storage of messages. e.g http requests.
+	
 --> At Least Once delivery guarantees that all messages will eventually be delivered.
 --> When a failure occurs:
 	- The messages may not have been delivered. The messages may have been delivered, but not acknowledged.

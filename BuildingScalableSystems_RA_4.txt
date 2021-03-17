@@ -148,7 +148,7 @@
 --> CRDTs are highly available and Eventually Consistent e.g G-Set
     - Data is stored on multiple replicas for availability.
     - Updates are applied on one replica and then copied asynchronously.
-    - Updates are merged to determine final statel.
+    - Updates are merged to determine final state.
     - CRDTs are a solution for Availability (AP) CAP Theorm.
     - Two Types: CvRDTs(Convergent Repliated Data Types), CmRDTs(Commutative Replicated Data Types)
     - CvRDTs copy states between replicas, requires a merge operation that understands how to combine two states.
@@ -156,11 +156,11 @@
       Idempotent (Duplicated operations don't change the result)
 
     - CmRDTs copy operations between replicas.
---> In addition to G-Sets, tehre are several other existing CRDT types including Registers, Counters, Sets, Maps etc.
+--> In addition to G-Sets, there are several other existing CRDT types including Registers, Counters, Sets, Maps etc.
 --> CRDT data types can be nested to create comples structures.
 --> You can create new data types if you can define an appropriate merge function.
 --> Akka Distributed Data implements CRDTs, Currently only supports CvRDTs, supports various data types including:
-	Counters, Sets, maps, Registers.
+	Counters, Sets, Maps, Registers.
 	
 ====Effects of CRDTs==========
 --> CRDTs in Distributed Data are stored in memory, Require that the entire sturcture fit into available memory.
