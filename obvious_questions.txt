@@ -1,0 +1,4 @@
+I think when they speak about akka distributed data, they are explaining it from sharding context i.e CRDTs are part of sharded entities. CRDT will be the state of the
+ entity/stateful actor. So update/delete/create ops will happen to db actually from a particular entity and latest data loaded
+ to same entities's CRDT after update and then replicated to other node entities. Correct me if I am wrong? if that is the case haven't we achieved both CA then.
+
