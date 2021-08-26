@@ -1,0 +1,14 @@
+So, in auto-commit, as soon as we poll e.g 20 messages from kafka, it automatically commits with highest number of offset. So in this case, let's say if consumer fails after committing and before processing, and then
+after re-balancing as the new consumer comes he will miss those 20 messages and we will be having event-miss.
+
+In manual-commit, after polling, let's say 30 messages, and after processing them we will commit the offset, what if, in processing consumer fails, and we have not committed yet, so again the new consumer comes and it will start
+reading again from message 0 as offset was commited and we will be having event-reprocessing.
+
+So, we can commit offset after processing every message, here, there will be lot of request to _consumer_offset_ topic, but there won't be any reprocessing or misses.
+
+Manual-commit can be sync, async commit.
+In sync throughput will be less or decrease, we will be processing less message in a given time-frame, as consumer is waiting for ack for that commit.
+In async, whenver we process some message, we commit asynchronously so , we are free to process next message.So throughput increase, but we won't get any exception like the way we used to 
+get in sync commit instantaneously, so we might have problems here.
+
+while implementing our software, we balance between these two, somwhere we use sync and somewhere async. so we balance them to get maximum throughput in our application.
