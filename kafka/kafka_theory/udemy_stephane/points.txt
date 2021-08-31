@@ -1,0 +1,11 @@
+Points:
+
+--> 	There is no "normal" size of partition, it all depends on configuration of kafka cluster and amount of data cluster handles, e.g,  with parameters log.retention.ms and log.retention.bytes  you can define 
+	a) for how much time data will be retained in partititions and b) how much data partitions can hold.
+	Based on those parameters and amount of data that is written to partitions, size can vary from couple of thousand messages to bilions and billions of messages, from few MB to many TB...
+-->     what is partition and why do we need partition and use of partition in topic ?
+	Partitions have two main roles:
+	1. Dividing topic data into smaller units. If topic contains lots of data that doesn't fit to single machine disk, then dividing it to more partitions allows us to spread topic data to more then one machine. 
+	Also replication is done on partitions level.2. It allows more then one consumer to process data from same topic. Only one consumer can process messages from commit log (in order to  preserve processing order).	
+	If there was only one commit log on topic level then only one consumer form the group could process the messages from topic . With multiple commit logs (1 commit log per partitions, applies to 1 consumer per CG) per topic, 
+	we have processing order guarantees (on partition level) and multiple consumers can safely process messages from same topic (but from different partitions)
