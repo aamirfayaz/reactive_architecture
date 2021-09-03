@@ -3,3 +3,5 @@
 --> Organic growth stands in contrast to inorganic growth, which is external growth, such as through mergers and acquisitions.
 --> "stands in contrast to" ->  to be very different from something else
 --> handle failure gracefully.
+--> good fallback
+--> we can brute force the problem
