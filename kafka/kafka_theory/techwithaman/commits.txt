@@ -8,7 +8,7 @@ So, we can commit offset after processing every message, here, there will be lot
 
 Manual-commit can be sync, async commit.
 In sync throughput will be less or decrease, we will be processing less message in a given time-frame, as consumer is waiting for ack for that commit.
-In async, whenver we process some message, we commit asynchronously so , we are free to process next message.So throughput increase, but we won't get any exception like the way we used to 
+In async, whenver we process some message, we commit asynchronously so we are free to process next message.So throughput increase, but we won't get any exception like the way we used to 
 get in sync commit instantaneously, so we might have problems here.
 
 while implementing our software, we balance between these two, somwhere we use sync and somewhere async. so we balance them to get maximum throughput in our application.
