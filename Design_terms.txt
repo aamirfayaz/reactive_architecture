@@ -5,3 +5,4 @@
 --> handle failure gracefully.
 --> good fallback
 --> we can brute force the problem
+--> Abort and rollback the process.
