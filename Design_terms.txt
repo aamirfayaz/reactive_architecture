@@ -1,7 +1,13 @@
 --> Transient failure is "a brief malfunction that often occurs at irregular and unpredictable times."
 --> Organic growth refers to the growth of a business through internal processes, relying on its own resources.
 --> Organic growth stands in contrast to inorganic growth, which is external growth, such as through mergers and acquisitions.
---> "stands in contrast to" ->  to be very different from something else
 --> handle failure gracefully.
 --> good fallback
 --> we can brute force the problem
+--> system requirements
+--> Constraints/bottlenecks
+--> Continuous refinement and endless improvement
+--> handful of techniques
+--> Zero Contention & no Central bottleneck
+--> add-on/built-in
+--> additional infrastructure

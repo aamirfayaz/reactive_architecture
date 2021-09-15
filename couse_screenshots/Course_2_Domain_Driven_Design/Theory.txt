@@ -1,0 +1,9 @@
+Domian Driven Design
+
+-> Architectural approach used to design large systems.It gives a set of guidelines to break larger domains into smaller domains.
+-> Many of the guidelines and rules in Domain Driven Design are compatible with those in Reactive Architecture.
+-> In the context of software, Domain refers to business or idea that we are modelling.
+-> key goal of DDD is to build a model that the domain experts understand.
+-> Model is not the software,it represents our understanding of the domain, software is implementation of the model.
+-> We use Ubiquitous langauge as a communication channel between s/w developers and domain experts.
+-> Terminology in UL comes from domain experts, words originate in domain and are used in s/w, avoid using s/w terms and introducing them in domain.
