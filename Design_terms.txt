@@ -4,6 +4,7 @@
 --> handle failure gracefully.
 --> good fallback
 --> we can brute force the problem
+<<<<<<< HEAD
 --> system requirements
 --> Constraints/bottlenecks
 --> Continuous refinement and endless improvement
@@ -11,3 +12,6 @@
 --> Zero Contention & no Central bottleneck
 --> add-on/built-in
 --> additional infrastructure
+=======
+--> Abort and rollback the process.
+>>>>>>> 1e5a1379ff8c361076136b7be2b29939a7f7a427
