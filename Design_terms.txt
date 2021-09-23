@@ -12,4 +12,4 @@
 --> add-on/built-in
 --> additional infrastructure
 --> boilerplate code
-
+--> No design is perfect, there are always trade-offs, compromises, its private.
