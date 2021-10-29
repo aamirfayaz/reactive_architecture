@@ -1,0 +1,151 @@
+
+Hello and welcome to our new section,
+
+latency and throughput are the two most important things that helps you to measure performance of your system.
+In simple terms, latency means how long it takes for data from one point in the system to another point in system.
+
+Now, what does that line mean?
+
+So it means that how much time your data takes to go from point A to point B in a particular system. So that time consumption is your latency. In otherwords, we can refer that time as latency.
+
+Now, when we are talking about systems, every type of system can have a different kind of latency.
+
+So talking about, let's say, a network request, memory or disk, each could have a different kind of latency.
+
+Now, when talking of a network request, what is the latency? So the time your request takes from going to client to server and back to client is latency. So that complete time taken by your request is your latency.
+
+So for an example, let's say your user is sitting in a country from where your servers are very far. So in that case, the latency would be high. It means that the time for that request to be processed is high.
+
+And let's say if your server is very close or near to the client, in that case, that latency would be low in comparison to the server far from the client.Now, this is the latency when it comes to the network.
+
+Now, what is latency when it comes to memory or disk?
+
+So latency here means that how much time your machine takes to read the data from your memory or disk.
+
+OK, now we have understood different kind of systems can have different kind of latency.
+
+Now, the next thing that we have to know about when we are talking about different kind of latency, it means that reading from one system in comparison to another system can be faster.
+
+If you see the first sub point, it says that reading data from memory will be faster than reading data from disk.
+
+So it's true.
+
+So, for example, let's say you're reading something from your cache.In that case, it would be way faster than reading data, even from your SSD or HDD.
+
+But let's say for an example, you have two disk storage for an example.
+
+One is HDD, one is SSD.So let's say you're trying to read something from your HDD.It will be always slower than your SSD.
+
+It means that your latency is always going to be high when you are trying to read something from HDD.So now when you are designing the system, you have to think about what are the things that you care the most?
+
+What are the things that you want to give user as quickly as possible.
+
+Those things will go in your cache, or memory, or let's say you want to store something permanent for long term.
+
+So you cannot store those things in memory because you want to store them in long term.
+
+So maybe you are going to store them in SSD because the SSD are faster.
+
+So you will have lower latency.
+
+But let's say we can have different kind of SSD as well.
+
+So different kind of SSD will have different kind of latency.
+
+So for example, and NVME SSD, these kind of SSD are kind of fast, so you will have lower latency.
+
+OK, so these were all just examples.
+
+So one thing that we have already discussed, that network calls latency increases as the distance increases. So as soon as you start to go far away from your server, or you can say that as soon as your client
+
+is far away from your server and that distance increases, your latency will increase.
+
+And whenever I'm saying latency, it means the time to complete that particular operation, time to complete that particular request.
+
+That's it.
+
+OK, now the next thing, when you're designing a system, you typically want to optimize those system by lowering overall latency of the system.
+
+Now, what does that mean?
+
+So let's say you want to design a system.
+
+The system will have different parts. The system will have memory, the system will have the network request going in. The system will have that permanent disk storage.
+
+Now you have to think about which thing will go where or you can think about that, what kind of things that I will use to lower the latency.
+
+So for an example, let's say you are building something as a video game or video conferencing app. In these cases, you will care for very low latency and you cannot afford for a request to take a lot of time to complete.
+
+So for an example, let's say you're playing a video game and if lag happens, it's a very bad experience for the user.  
+
+You never want to have that.
+
+And let's say you are chatting with someone online through video conferencing app. In that case, you don't want to miss any kind of information from that particular user and you want that information as fast as possible.
+
+So we are caring About very low latencies in this case, now, when designing a system, you have to think about that,
+
+weather your system demand that low latency or not.
+
+If, yes, you have to think about what are the components I have to put?
+
+Do I need to put the server closer to the user as much as possible?
+
+Or I have to use multiple servers at different locations?
+
+These are the possible solutions.
+
+Now, we haven't discussed these solutions yet because as this is our first section.
+
+But as we start to go ahead in this course, you you'll see that how you can create multiple servers.
+
+But the point is there will be systems that will demand for very low latencies and you have to fulfill those demand.
+
+Now, there are kind of systems that don't demand for latency, that don't care about low latency.
+
+For example, some websites, some websites are OK when it takes a couple of seconds, maybe two or three or four seconds to load.
+
+It's not the end of the world.
+
+So if you have a high latency on your website, user are not going to complain that much in the comparison of playing a game or using a video conferencing app.
+
+Now, another system that might have higher latencies or which means that high amount of time to complete a request is kind of websites or services that provide accurate information.
+
+So for an example, if someone is trying to get the latest update, someone is trying to give you the accurate information.
+
+What they will prefer is they never get down. It means that their server is never down.
+
+They are always up and running. So they will always prefer their servers are available.
+
+And we are going to learn about high availability in later section.
+
+But the point is, this kind of system might not demand the lower latencies, as the last point says, that the systems that never want to be down might also not care for lower latencies.They are OK with higher latencies.
+
+You know the website. For an example,
+
+Let's say Facebook is taking a couple of seconds to load a video and that's fine.
+
+It can happen. Maybe they have a maintenance update going on or maybe they are pushing some changes to their code base.
+
+Or maybe you will see these kind of higher latency happening a lot when there's a maintenance going
+
+on.
+
+Or maybe that website is sending you a lot of data back.
+
+And that data that the website is trying to send you back is huge.
+
+And that takes some couple of seconds.
+
+But even if your website is under maintenance, even you have some kind of data that takes time to be
+
+sent to the user, in case of video games and video conferencing apps, you cannot afford higher latency,
+
+which means that higher amount of time to get back to the user what the user has requested.
+
+So you have to think about that, what kind of systems you are building. And according to that, you have to decide what kind of latency I will want in these kind of system.
+
+So this was it for latency. In the next video, we are going to discuss about throughput and how it can affect our system design.
+
+Thanks for watching this video.
+
+Goodbye.
