@@ -1,0 +1,468 @@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Microservice @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+==Monolithic===
+--> Disadvantages: No clear isolation in the application, complex dependencies, hard to understand and modify. [Ball of mud, applicable only to worst monolith design]
+--> To clean up this ball of mud, we introduce isolation into application, we divide application along clear domain boundaries.
+--> We introduce libraries that help isolate related pieces of code.
+-> Libraries provide a clean and consistent interface.
+--> Characteristics of a monolith: [Deployed as a single unit, Single shared database, communicate with synchronous method calls(request/response scenario), 
+	Deep Coupling between libraries and components(often through the DB), Big Bang Style release, Long cycle times(weeks to months)
+	Teams carefully synchronize features and releases]
+	
+--> Scala a Monolith: [Multiple copies of the monolith are deployed:each copy is independent:they don't communicate with each other, the database
+						provides consistency between deployed instances]
+						
+--> Advantages of Monolith: [Easy cross modules refactoring, easy to maintain consistency(single database), Single Deployment Process, Simple this to monitor,
+							Simple Scalability Model]
+--> DisAdvantages of Monolith: [Limited by the maximum size of a single physical machine, only scales as far as database will allow, 
+								components must scale as a group, deep coupling leads to inflexibility, development is slow(change is slow, build time long),
+								Serious failure in one component often bring down the whole monolith(Retribution of load  can cause cascading failures 
+								(when one monolith goes down it forward load to other instance)]
+							
+==Service Oriented Architecture==
+-> In Monolith, for worst case scenario, we have ball of mud, we introduce isolation into application, we divide application along clear domain boundaries.
+-> There is another way we can introduce additional isolation, by using SOA
+-> Here, services don't share a database, this reduces coupling.
+-> All access must go through the API exposed by the service.
+-> Services may live in the same process(monolith) or may be separated(microservice) 
+-> why its not same as microservice, it doesn't talk about deployments (we can deploy as a whole, monolith, our choice, our like separately: just like microservices)
+
+==MicroServices==
+Microservice architecture is an architectural design pattern which builds an application as collection of small  autonomous services deployed for a business domain
+--> Microservices are a subset of SOA
+--> Logical components are separated into isolated microservices
+--> Microservices can be physically separated and independently deployed
+--> Each Component/microservice has its own independent data store
+--> Microservices are independent and self governing
+Characteristics:
+-> Each Service is deployed independently
+-> Multiple independent databases
+-> Communication is synchronous or asynchronous (Reactive Microservices)
+-> Loose coupling between components
+-> Rapid Deployment (possibly continuous)
+-> Teams release features when they are ready
+-> Teams often organized around a DevOps approach (one team responsible for everything, development, deployment: opposite of monolith)
+
+Scaling a Microservice application:
+->Each microservice is scaled independently
+->could be one or more copies of a service per machine
+-> Each machine hosts a subset of the entire system
+Advantages:
+->Individual services can be scaled/deployed independently
+-> Increased availability: Serious Failures are isolated to a single service (if reservation service fails others won't affected, so other parts work fine in the system)
+->Isolation/decoupling provides more flexibility to evolve within a modules (separate module changes . change code independently, but API should remain the same)
+-> Supports multiple platforms and languages
+
+MicroServices Team Organization:
+-> Microservice often comes with organizational change
+-> Teams operate more independently
+-> Release cycles are shorter
+-> Cross team coordination becomes less necessary
+-> These changes can facilitate an increase in productivity
+
+Disadvantages:
+-> May require multiple complex deployment and monitoring approach
+-> Cross service refactoring is more challenging
+-> Requires supporting old API versions (becoz some modules are using old version)
+-> Organizational changes to microservice can be challenging
+-> Increases troubleshooting challenges
+
+[Responsibility of Microservice]Single Responsibility Principle:
+-> Robert C Martin, a class should have only one reason to change.
+-> A micorservice should have a single responsibility (e.g managing accounts)
+-> A change to the internals of one microservice should not necessitate a change to another microservice
+
+==Principles of Isolation===============
+-> As we moved from Monoliths to Microservices we are introducing more isolation. Isolation provides reduced coupling and increased scalability.
+-> Reactive microservices are isolated in: State, Space, Time, Failure.
+   --> Isolation of state: all access to microservice's state must go through its API, no backdoor access via the database. It allows microservice to 
+   	evolve internally without affecting the outside.
+   --> Isolation in space: Microservices should not care where other microservices are deployed.It should be possible to move a microservice to another machine,
+   	possibly in a different data center without issue.Allows the microservice to be scaled up/down to meet demand.
+   --> Isolation in time: Microservices should not wait for each other.Requests are asynchronous and non-blocking. (More efficent use of resources. Resources can be freed immediately, rather than waiting for a request to finish.)
+   	Between microservices we expect eventual consistency (Provides increased scalability.
+   	Total consistency requires central coordination with limits scalability)	
+   --> Isolation of failure: Reactive microservices also isolate failure. A failure in one microservice should not cause another to fail. Allows the system to 
+   	remain operational in spite of failure.
+   	
+Bulk-Heading: e.g ship bulkheading 
+->A particular technique for isolating failures is called as BulkHeading. Failures are isolated to failure zones. Failure in one service will not proagate to other service.
+  overall system will remain functional (possibly in a degraded state)
+ 
+Circuit Breakers: another technique for isolating failures 
+--> What happens when a service depends on another that is overloaded? calls to the overloaded service may fail. The caller may not realize that the service is under stress and
+    retry. The retry makes the load worse. Callers may need to be careful to avoid this.
+--> Circuit Breakers are a way to avoid overloading a service. They quarantine a failing service so it can fail fast. Allows the failing service time to recover without overloading it.
+     Akka and lagom both feature circuit breakers.
+--> Closed(Normal) State, changes to  Open State(Fail Fast, immediately fail API call to it, one disadvantage, so we may lose retry from external side )  e.g when we trip circuit breaker,
+    can attempt reset, Half-Open can be reset for again, or trip to Open to fail fast. A half-open state allows a single request through.
+    
+Asynchronous Messaging:
+--> Async, non-blocking messaging allows us to decouple both time and failures.
+--> Services are not dependent on the response from each other.
+--> if a request to a service fails, the failure won't propogate.
+--> The client service is not waiting for a response. It can continue to operate normally.
+
+Autonomy:
+--> We build system using the principles of isolation to achieve Autonomy. Autonomy means each service we build can operate independently. Advantages:
+    --> Microservices can only guarantee their own behaviour (via their API)
+    --> Autonomous services have enough information to resolve conflicts and repair failures.
+    --> They don't require other services to be operational all the time. 
+    --> Autonomy allows for stronger scalability and availability.
+    --> Fully autonomous services can be scaled indefinitely.
+    --> operating independently means that they can tolerate any amount of failures.
+    --> Few services will be fully autonomous, but the closer we get, the better. Now, Achieving Autonomy:
+    --> Communicate only through asynchrounous messages.
+    --> Maintain enough internal state for the microservice to function in isolation.
+    --> Use Eventual Consistency.
+    --> Avoid direct, synchronous dependencies on external services.
+    
+GateWay Services:
+--> Microservices can lead to complexities in the API. A single request may require information from multiple microservices. Client could send out many requests, and
+    aggreagate the results, but this may be too complex. How can we manage complex APIs that access many microservices, keeping client in picture? API GateWay Services
+--> Requests can be send through a Gateway service.
+--> A GateWay Service sends the request to individual microservice and aggregates the responses.
+--> Logic for aggregation is moved out of the client and into the gateway service.
+--> Gateway handles failures from each service. Client only needs to deal with possible failure from the gateway.
+		
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ DDD @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Reactive Architecture Part-2
+Domian Driven Design
+-> Architectural approach used to design large systems.It gives a set of guidelines to break larger domains into smaller domains.
+-> Many of the guidelines and rules in Domain Driven Design are compatible with those in Reactive Architecture.
+-> In the context of software, Domain refers to business or idea that we are modelling.
+-> key goal of DDD is to build a model that the domain experts understand.
+-> Model is not the software,it represents our understanding of the domain, software is implementation of the model.
+-> We use Ubiquitous langauge as a communication channel between s/w developers and domain experts.
+-> Terminology in UL comes from domain experts, words originate in domain and are used in s/w, avoid using s/w terms and introducing them in domain.
+
+==Bounded Context==
+-> e.g Restaurant Domain (Orders, Servers, Credit, Reservation, Plate, Cook etc), contains ideas, actions, rules that interact in complex way.
+-> We create sub-domain from large domain (e.g Reservation sub-domain contains[reservation, customer, table, time, location etc])
+-> Sub-domains are created by grouping related ideas, actions and rules. Some concepts may exist in multiple sub-domains (e.g customer)
+-> Each sub-domain has its own ubiquitous language and model, the language and model for a sub-domain is called Bounded-Context.
+-> Examples of BC: [orders, reservations, payments, menu, customers]
+-> Concepts/terms can be shared to multiple Sub-domains or BC.
+-> Sub-domains or Bounded Contexts are good starting points for building reactive microservices.
+-> From one BC to the next, the meaning of a word (e.g order) may change greatly.
+-> In RBQQ, while talking to a server, order has a very specific meaning, but for someone managing inventory for RBBQ, order means something different.
+-> Also need to observe how details of a model changes when moving from one BC to another.
+-> In RBBQ, for kitchen preparing an order, they don't care about prices, but when customer pays for order, price is critical.
+-> It is the same order but the relevant details of the Order changes while moving from one BC to another.
+-> Ways to determine Bounded Context, no universal answer, but there are some guidelines, which signal a division:
+   --> Consider human culture and interactions.
+   --> Look for changes in Ubiquitous languages.(if the use or meaning of language changes, it suggests a new BC)
+   --> Look for varying or unnecessary information in a context (e.g employee id meaningless in a customer so movie to say Employee sub-domain).
+   --> Strongly separated bounded-context will result in smooth workflows (an awkward workflow signals misunderstanding of the domain), also, if
+	bounded context has too many dependencies, it may be over-complicated.	
+
+== Event First DDD===
+-> Traditionally, DDD, focused on the objects in the domain e.g, Cook, Reservation, Customer etc (Eric Evens book)
+-> Event First DDD, places the focus on activities or events that occur in a domain e.g: Customer makes a reservation, server places an order, 
+   food served to customer etc.
+-> Using EFDDD, we start by defining the activities, then group those activities to find logical system boundaries. (There is a particular techinque
+   called Event Storming for it.)
+   
+==Subject-Verb-Object notation==
+->Subject-Verb-Object notation to give a consistent way to phrase our activities or our events in domain.
+-> e.g Host checks current reservation, Host(Subject), checks (verb), reservation (object): So, subject is the person who is doing the action performed,
+       verb will be what action it does.
+-> e.g a Host Interviewer Subject-Verb-Object[Host answers phones, Host records reservations, Host greets guests, Host seats guests,
+					      Host checks Reservations, Host record tables as occupied]
+
+-> So, once we have separated our BCs into these nice clean boundaries. Now we have to maintain the purity of those BCs. Using Anti-Corruption Layers
+-> [Reservation Context]--Anti-Corruption-Layer--[Customer context] (ACL, implemented as interfaces, and others (e.g customer) as concrete classes)
+   -> Each BC may have domain concepts that are unique. (e.g address to customer, address doesn't matter in reservation)
+   -> Concepts are not always compatible from one context to another(e.g customer address invalid in reservations), 
+	ACL are introuduced to translate these concepts (e.g customer address not needed in reservation, so removed/translated from 1 context to another)
+-> ACL, will prevent BCs to leak into each other, also, helps BCs to stand alone (ACL, uses caching if some feature from BC disappears for some reason)
+-> ACL, can be implemented in Legacy system or in BC or both.
+
+-> Context Maps are ways of visualizing BCs and the relationships between them.
+
+->Bartender collects Payment for a Drink Order, In this sentence our object could be Payment or it could be Drink Order.
+  Both are actually objects in the sentence. Payment is what is known as a "direct object" and Drink Order is an "indirect object".
+   
+   ===Domain Activities===
+-> Commands (should be intent revealing, specific) are type of activity that occurs in domain, It represents a request to perform an action.
+	It is usually delivered to a specific destination, It causes a change to the state of a domain.
+	e.g, Add an item to an order, pay a bill, prepare a meal.	 
+-> Events are another activity in the domain. They represent an action that happened in the past. Often broadcast to many destinations. Records a change
+   to the state of a domain. Often the result of a command. e.g: An item was added to an order, A bill was paid, a meal was prepared.
+   Events and commands often exist in a 1 to 1 relationship with the Command. Because they record something that happened in the past, 
+   they are best written as past tense. Like Commands, Events are best when they reveal intent.
+
+Like Commands, Events are best when they reveal intent
+-> Queries are the final type of activity in the domain. They represent a request for information about the state of the domain. Because they are query,
+	a response is always expected. Queries should the alter the state of the domain. Usually delivered to a specific destination.
+	e.g, Get the details of an order, check if a bill has been paid.
+-> Commands, Events and Queries are the messages in the reactive systems (Issued in Asynchrounous Message Driven Approach). 
+	e.g(Make a Reservation, Reservation made, Get Reservation). They form the API for a Bounded Context or Microservice.	
+
+==Ubiquitous Language to code==
+-> Open an Order in domain (OpenOrder, class in code). Here, the Command is "Open an Order". This is using domain terminology
+   and we could talk to our domain experts about how we "Open an Order" and they would be able to grasp what we are talking about.
+    When we translate that into code we use a class name such as "OpenOrder" or even "OpenAnOrder". 
+	This allows us to maintain the Ubiquitous Language in the code.
+
+==Domain Objects==
+-> Value object: It is defined by its attribute. Two value objects are equivalent, if their attributes are the same.
+	e.g Address(street, city, state attributes), Name etc
+-> Value objects are immutable, In addition to state, value objects can contain business logic.
+-> Messages in Reactive Systems are implemented as Value Object, Discount(reason, price) on order
+
+==Entity==
+-> An entity is defined by a unique identity (i.e an id or key). An entity may changes attributes, but not its identity.
+   e.g: Person entity, name must be unique, but other attributes (hair color, weight etc) may change, but it will be same entity.
+   Entites are single source of truth for a particular id.
+   If the identity changes, it is a new entity, regardless of its attributes. Entities may also contain business logic.
+   e.g Actors in akka (unique address is identity, mutable: change their state in safe way),Entities in Lagom, Order(orderId(unique), name, table)
+ 
+ ==Aggregate===
+ -> It is a specific type of entity. An aggregate is a collection of domain objects bound to a root entity.
+	e.g Person (root entity), domain objects (Name, Addres, PhoneNumber). The root entity is called the Aggregate Root.
+	Objects in Aggregate can be treated as single Unit.Access to object in Aggregate must go through the Aggregate Root.
+	Transaction should not span multiple Aggregate Roots.
+	Some contexts may require multiple aggreate roots.
+	Aggregates are good candidates for distribution in a reactive system.
+-> How to detemine aggregate roots e.g Customer, Reservation etc
+   Is the entity involved in most operations in that bounded context?
+   If u delete the entity, does it require u to delete other entities?
+   will a single transaction span multiple entities? 	
+   
+== Data Abstractions===
+-> Business logic doesn't always fit with an entity or value object.
+	Often used to abstract way an anti -corruption layer.
+-> This logic can be encapsulated by a Service. Services should be stateless. Email Sender (Abstract), SMTP email sender (concrete)
+-> Too many services lead to an anaemic domain. Look for missing domain object before resorting to a service.
+-> Factories abstract away the logic of creation.
+-> Factories are used to get new objects, Repositories are used to get, or modify existing objects
+-> Factories and repositories are related.
+-> Tools like Akka, lagom are powerful because they provide facilities that abstract away the need for Repositories.
+
+==Hexagonal Architecutre or(Ports and Adapters)===
+--> It is combined with DDD. It is not directly related to DDD. we can use DDD without using it. However, its very compatible with DDD.
+--> Basically, its an alternative to the layered or N-tier architecture.
+--> Domain is isolated to the center (core of hexagon) of the model, becomes the archtectureal focus. (has also user/Infrastructure side api, Data/Infrastructure side api)
+--> Ports are exposed as an API by the domain, Infrastructure contains adapters that map to the ports.
+--> API provides an interface to the Domain. These are your ports.
+--> Infrastructure adapts incomming and outgoing traffic into the ports. 
+--> Outer Layer depend on Inner layers. Inner layers have no knowledge of outer layer.
+--> Advantage: allows our Domain to be portable, ensure proper separation of infrastrucutre from Domain. Prevents concerns about db, UI etc from
+	bleeding into the domain.
+--> This can be enforced with package, or even project structure in the application.
+-> Akka, lagom take this further and abstract many of our infrastructure needs. Persistence, distribution, communication are all built into
+	the tookits so you can foucs on the domain and worry less about infrastructure.
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@CAP, Amdal, Gunther, Sharding,CRDT's@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+--> In this course we will look at a balance between consistency and availability in distributed systems.
+--> A system is said to be scalable, if it can meet increases in demand while remaining responsive.
+--> A system is said to be consistent, if all memebers of the system have same view or state.
+--> A system is said to be available, if it remains responsive despite any failures.
+
+========Scalability==============
+-->Perfomance and Scalability are related, but different concepts. Performance optimizes response time. Scalability optimizes ability to handle load.
+--> Improving Performance speeds up response time (i.e the latency), total number of requests (e.g load) may not change.
+--> Improving Scalability increases ability to handle load. Performance of each request may not change.
+--> Requests/second is a way to measure Performance and Scalability. Performance has a limit, can't go to zero response time, but theoretically no limit on Scalability.
+--> Reactive Microservices tend to focus on Scalability.
+
+==========Consistency=================
+--> Distributed systems are systems that are separated by space.
+--> Physics puts an upper limit on information speed (The Speed of Light)
+--> When two systems are separated by space, there is always time required to reach consensus. 
+--> In the time it takes to transfer the information, the state of the original sender may have changed.
+--> The problem is, this means that the receiver of that information is always dealing with stale data.
+--> This applies whether we are talking about computer science, people, or even just the physical world.
+--> Reality is therefore Eventually Consistent.
+--Eventual Consistency ----
+--> E.C guarantees that, in the absence of new updates, all accesses to a specific piece of data will eventually return the most recent value.
+--> E.C: In order to reach a state of consistency, you have to stop all updates, at-least for some period of time in order to reach that level of consistency.
+--Strong Consistency ----
+--> An update to a piece of data need agreement from all nodes before it become visible.
+--Strong Consistency in an Eventually Consistent world--
+--> Physics prevents Strong Consistency, so mechanisms are introduced to simulate it.
+--> Locks allows systems to simulate Strong Consistency.
+--> Distributed systems are isolated to non-distributed locks.
+--> Locks introduce overhead in the form of a contention (hinders our ability to be elastic, resilient etc), so cost associated to it.
+ --> Collaborating on Code Cloud Edits with acquiring locks is a good example of Strong Consistency.
+ --> Modern Version Control systems are Eventually Consistent, they attain consistency through merge.
+ 
+ ===The Effects of Contention============
+ --> Any two things that contend for a single resource are in competiton.This competiton has one winner, others are forced to wait for winner to complete.
+     As the number of things competing increases, the time to free up the resource increases. As load increases, we will eventually exceed acceptable time limits.	
+ --> Amdahl's law defines the maximum improvement gained by parallel processing.
+ --> Improvements from parallelization are limited to the code that can be parallized.
+ --> Contention limits parallelization and therefore reduces the improvement.
+ --> Amdahl's law shows the effect of contention on a distributed system.
+ --> A key part of Amdahl's Law is to recognize that Contention limits parallelization.
+ --> OR even if we try to parallelize, if we have contention in our systems, then we will get diminishing results.
+ 
+ =====Coherency Delay==================
+ --> In distributed system, synchronization of the state of multiple nodes is done using crosstalk or gossip.
+ --> Each node in the system will send messages to every other node informing them of any state changes till they reach a state of Coherence where they all agree on the state of the system.
+ --> The time it takes for this synchronization to complete is called Coherency Delay.
+ --> Increasing the number of nodes increases the Coherency Delay.
+ --> Gunther's Universal Scalability Law:
+     - Gunther's Universal Scalability Law builds on Amdahl's law.
+     - In addition to contention, it accounts for Coherency Delay.
+     - Coherency Delay results in negative returns.
+     - As the system scales up, the cost to coordinate between nodes exceeds any benefits.	
+--> Gunther's Universal Scalability Law demonstrates that increasing concurrency can cause negative returns due to contention and coherency delay.     
+     ==Goal is to try to get as close as possible to our Linear Scalability line as possible. (--Fantasy--)
+     
+====Laws of Scalability=============
+--> Amdhal's law, Gunther's law of scalability, show was that linear scalability is almost impossible to achieve.
+--> The myth of man-month book: adding manpower to a late software project makes it later. This idea is known as Brooks's law,
+--> Both Amdhal and Gunther law's demonstrate linear scalability is almost always unachievable.
+--> Linear Scalability requires total isolation. Basically Stateless.
+--> Reactive systems understand the limitations imposed by these laws.
+--> They try to exploit the limitations, rather than avoiding them.
+
+====Scalability in Reactive Systems============
+-->Reactive Systems reduce Contention by:
+   - Isolating Locks, Eliminating transactions, Avoiding Blocking Operations.
+--> They mitigate Coherence Dealys by:
+   - Embracing Eventual Consistency.
+   - Building in Autonomy.
+--> This allows for higher Scalability.
+--> The goal is to reduce or eliminate the things that prevent Scalability.   
+
+====CAP Theorm============
+--> Distributed systems must account for the CAP theorm [Eric Brewer].
+--> The CAP theorm states that a distributed sysem can not provides more than two of the following:
+    -> Consistency, Availability, Partition Tolerance.
+--> Partition tolerance means the system continues to operate despite an arbitrary number of messages being 
+    dropped (or delayed) by the network.	    
+--> The theorm talks about trade-offs between Consistency and Availability that we have to make if our system
+    ever suffers partitions.
+--> Formalizes the trade-off between consistency and availability in the presence of partitions.
+--> A read/write "Concern" on NOSql db.In the cluster of database nodes, each node will communicate the current state of the system with other nodes through a form of replication called gossip.
+
+--> Sometimes we need to be consistent (strong), but also allow our systems to scale. Consistency creates Contention. Contention means Scalability will have diminishing,
+    or even negative returns. How can we balance the need for Strong Consistency with the need for Scalability? By Isolating Contention...
+    --> To improve scalability, we seek to eliminate contention, and reduce crosstalk. when they can't be eliminated, we try to isolate them instead.
+    --> Locks with a broad scope (e.g Table Locks) create a lot of contention.
+    --> Locks with a smaller scope (e.g Row/Record Locks) create less contention.
+    --> Reactive system can use a technique called Sharding to limit the scope of the contention, and reduce crosstalk.
+    --> Sharding is applied within the application (rather than the database.)
+
+
+====Sharding for Consistency============
+-->Sharding is a technique that provides strong consistency.Has techniques to minimize communication between the application and the database.
+--> Sharding partitions Entities (or Actors) in the domain according to their Id.
+--> Each Entity exists in only one shard.
+--> Each Shard exists in only one location.
+--> Because each entity lives in only one location, we eliminate the distributed system problem. The Entity acts as a consistency boundary.
+--> simulating, entity A == Reservation A on Shard A-B on 1 node.
+--> A Coordinator ensures traffic for a particular entity is routed to the correct location.
+--> The Id of the Entity is used to calculate the appropriate Shard.
+--> All traffic for a particular entity Id goes through the same entity.
+--> Aggregate Roots are a good candidate for Sharding.
+--> Balancing Shards:
+    - Id or Shard Key selection is important to ensure shards are balanced.
+    - A good shard key provides an even, randomized distribution.
+    - Common Sharding strategies include using UUIDs or hash codes to ensure a randomized distribution.
+    - Poor key selection results in hotspots.
+    -You should aim for approximately 10x as many shards as you have nodes.	
+===Effects of Sharding================
+--> Understanding where its appropriate to use, means what are its benefits/drawbacks.
+--> Contention in a Sharded System:
+  --> Sharding doesn't eliminate Contention, it isolates it.
+  --> within a single entity, there is contention. e.g xerox machine only one we have , with long line of message, here xerox is actor.
+  --> The Router/Coordinator represents a source of contention as well.
+  --> A sharded system minimizes contention by:
+     - Limiting the amount of work the Router/Coordinator performs.
+     - Isolating contention to individual entities.
+--> Sharding, Consistency, and Scalability:
+  --> Scalability is achieved by distributing the shards over more machines.
+  --> Strong Consistency is achieved by isolating operations to a specific entity.
+  --> Careful choice of shard keys is important to maintain good scalability.
+  
+--> Sharding and the CAP Theorm
+  --> Sharding is primarily Consistency (CP) solution, therefore it sacrifices Availability.
+  --> If a shard goes down then there is a period of time where it is unavailable.
+  --> The shard will migrate to another node eventually.
+  
+--> Benefit: Caching With Shards
+  --> Caching is problematic in a distributed system.
+  --> How do you maintain cache consistency with multiple writers.
+  --> Sharding allows each entity to maintain cache consistency.
+  --> The Cache is unique to that entity.
+  --> So all our ops to db are writes only.
+  --> Most applications are read heavy.Almost never going to db, reads straight from Cache, so big benefit.
+
+
+=====Availability and Scalability=================
+--> We established Sharding as a technique we can use when we want Consistency.
+--> It gives us a good balance betweeen Consistency and Scalability.
+--> The CAP Theorm forces us to choose between Consistency or Availability.
+--> What if we would prefer to have Availability rather than Consistency?
+--> CRDTS [Conflict Free Repliated Datatypes]provides a highly available solution based on asynchronous replication.
+
+====CRDTS for availability===========
+--> Applied at the application level [in our code], dbs do also, but here we aren't talking about that.
+--> CRDTs are highly available and Eventually Consistent e.g G-Set
+    - Data is stored on multiple replicas for availability.
+    - Updates are applied on one replica and then copied asynchronously.
+    - Updates are merged to determine final state.
+    - CRDTs are a solution for Availability (AP) CAP Theorm.
+    - Two Types: CvRDTs(Convergent Repliated Data Types), CmRDTs(Commutative Replicated Data Types)
+    - CvRDTs copy states between replicas, requires a merge operation that understands how to combine two states.
+    - Merge operation must be Commutative(can be applied in any order), Associative(Can be grouped in any order),
+      Idempotent (Duplicated operations don't change the result)
+
+    - CmRDTs copy operations between replicas.
+--> In addition to G-Sets, there are several other existing CRDT types including Registers, Counters, Sets, Maps etc.
+--> CRDT data types can be nested to create comples structures.
+--> You can create new data types if you can define an appropriate merge function.
+--> Akka Distributed Data implements CRDTs, Currently only supports CvRDTs, supports various data types including:
+	Counters, Sets, Maps, Registers.
+	
+====Effects of CRDTs==========
+--> CRDTs in Distributed Data are stored in memory, Require that the entire sturcture fit into available memory.
+--> They can optionally be copied to disk as well: This speed up recovery if a replica fails, During normal operation
+	, all data is still in memory.
+--> Best used for small data sets, with infrequent updates, that requires high availability.
+--> Limitations:
+	- They don't work with every data type. You must be able to define an appropriate merge function.
+	-Some data types require complex merge functions that require the use of tombstones.
+	- A tombstone is a marker that shows something was deleted.
+	- Tombstones can result in data types that only get larger and never smaller
+--> Distributed Data and the CAP Theorm:
+	- Distributed Data is a solution for High Availability.
+	- Distributed Data will ensure that the data is asynchronously replicated to all nodes.
+	- Distributed Data is primarily intended to be an Availability Solution. It is Eventually Consistent.
+	- Depending on the write consistency you can choose to push it towards a more Consistent approach, at the cost of Availability.
+
+ -->  CRDTs: reduced the amount of contention in the system.
+ 
+ --> So, CAP Theorm gave a challenge to choose between, Strong Consistency or High Availability.
+ --> The choices b/w Consistency and availability isn't a technical but is a business decision.
+ --> Its also rarely an either/or solution. It's usually about balance.
+ --> The decision of when and where to sacrifice Consistency or Availability should be discussed with the
+      domain experts and product owners.
+ --> We need to factor in the impact of revenue if the system is unavailable v/s eventual consistency.       
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

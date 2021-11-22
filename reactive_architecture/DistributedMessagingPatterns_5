@@ -39,8 +39,7 @@
 --> In a distributed systems, timeouts present a difficult problem.
 --> A request timeout presents us with at least 3 possible scenarios:
     - The request failed.
-    - The request succeeded, but the reply failed.
-    - The request is still queued and may succeed(or fail) eventually.
+    - The request succeeded, but the reply failed.--> In this course we will look at a balance between consistency and availability in distributed systems.
 --> Because the request may have succeeded, we need to run the compensating action.
 --> The request may still be queued, therefore the compensating action may complete first. Compensating action and request may be commutative.
 

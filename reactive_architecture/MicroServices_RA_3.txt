@@ -77,8 +77,7 @@ Disadvantages:
    	evolve internally without affecting the outside.
    --> Isolation in space: Microservices should not care where other microservices are deployed.It should be possible to move a microservice to another machine,
    	possibly in a different data center without issue.Allows the microservice to be scaled up/down to meet demand.
-   --> Isolation in time: Microservices should not wait for each other.Requests are asynchronous and non-blocking. (More efficent use of resources. Resources can
-   	be freed immediately, rather than waiting for a request to finish.)
+   --> Isolation in time: Microservices should not wait for each other.Requests are asynchronous and non-blocking. (More efficent use of resources. Resources can be freed immediately, rather than waiting for a request to finish.)
    	Between microservices we expect eventual consistency (Provides increased scalability.
    	Total consistency requires central coordination with limits scalability)	
    --> Isolation of failure: Reactive microservices also isolate failure. A failure in one microservice should not cause another to fail. Allows the system to 
