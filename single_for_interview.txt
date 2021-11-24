@@ -446,9 +446,127 @@ Like Commands, Events are best when they reveal intent
       domain experts and product owners.
  --> We need to factor in the impact of revenue if the system is unavailable v/s eventual consistency.       
 
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Message Driven Architecture/ Delivery Semantics@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+===Message Driven Architecture======
+--> The foundation of the reactive system.
+--> A principle of a Reactive System is that it is Message Driven.
+--> Reactive systems put an emphasis on Async, Non-Blocking Messages.
+--> Asynchronous, Non-Blocking messages reduce contention in a system, which in turn improves scalability
+--> Messages are sent without waiting for a response.
+--> The sender may be interested in a response, but it comes asynchronously. Helps to free up resources.
+--> Advantages: 
+	- Resources (threads, memory etc) can be freed immediately.
+	- Reduced contention means potential for higher Scalability.
+	- Messages can be queued for delivery in case the receiver is offline.
+--> The Role of Synchronous Messages:
+    -> Async messges should form the backbone of Reactive Systems.
+    -> Synchronous messages can be used, but their requirement can often be relaxed.
+    	- Can you acknowledge the receipt of a message synchronously, but process it asynchronously?
+    	- The need for synchronous messages should be driven by domain requirements rather than technical convenience.
+    	- Best Practice: Use asynchronous by default, fallback to synchronous only when forced (understand consequences of the choice)
 
+--> The Cost of Asynchronous Messages:
+--> In a monolithic architecutre, coordination and consensus building is often done using transactions.
+--> Microservices, Distributed Systems, and Async Messages all make transactions more difficult.
+--> Holding transaction open for long periods results in slow, brittle systems.
+--> How can we manage long running transactions that span multiple microservices?
+
+===Sagas=======
+--> How to represent long running Transaction?
+--> The Saga Patterns is a way of representing a long running transaction.
+--> Multiple request are managed by a Saga.
+--> Individual requests are run in sequence or in parallel.
+--> When all requests complete, the Saga is complete.
+--> What happens when a request fails?
+--> Each request is paired with a compensation action.
+--> If any request fails, compensating actions are executed for all completed steps.
+--> The Saga is then completed with a failure.
+--> If a compensating action fails, then it is retried.This requires idempotence.
+--> Compensating actions are run for all Completed Steps.
+
+==> Timeouts in a Distributed System
+--> In a distributed systems, timeouts present a difficult problem.
+--> A request timeout presents us with at least 3 possible scenarios:
+    - The request failed.
+    - The request succeeded, but the reply failed.--> In this course we will look at a balance between consistency and availability in distributed systems.
+--> Because the request may have succeeded, we need to run the compensating action.
+--> The request may still be queued, therefore the compensating action may complete first. Compensating action and request may be commutative.
+
+--> Compensating actions are different than Rollbacks.
+--> Rollback:
+	- Implies the transaction has not completed.
+	- Removes evidence of the transaction.
+	
+--> Compensation:
+	- Applied on top of a previously completed action.
+	- Evidence of the original action remains.
+--> Moving forward with failure:
+    - Saga's apply compensating actions to undo changes made during previous stages.
+    - An alternative approach is to move forward despite the failures.
+    - A saga is coupled to the failures, but if we can move forward we break this coupling:
+    	e.g Retries, Fallback to cached or default values, move failures to an error queue and process them separately.
+
+--> Saga's are implemented using Akka Actors. Saga's can be represented as Finite State Machines.
+--> Actors naturally model Finite State Machines which makes them a natural choice.
+--> Akka Persistent FSM is a popular option.
+
+=======Two General Problem 1====:-
+--> Two General Problem illustrates the impossibility of reaching a consensus over an unreliable communication channel.
+--> Two armies try to coordinate a synchronized attack.Messagners travel through enemy territory and may be killed or captured.
+--> General A sends a message of attack to General B, General B should send ACK for General A to know the synchronzied timings of attack, but
+	General B is not sure if his ACK got to General A, so its a problem!
+	- The potential loss of messagners results in an infinite acknowledge chain.
+	- No matter how many acks are sent, neither A, nor B can ever be 100% sure that the other general is ready to attack.
+
+=====Guaranteeing Delivery=====:
+-->Two Generals problem shows that over an unreliable network we can not guarantee message recipt.
+--> This means that Exactly Once delivery of messages is impossible.
+--> Instead we must be satisfied with either:
+	-At Most Once
+	-At Least Once
+--> We can simulate Exactly once delivery using At Least Once delivery and idempotence.
+--> At Most Once delivery promises that no messages will ever be delivered more than once. No Ack needed.
+--> If a failure occurs, we never retry, so no retry mean: Messages are never duplicated, Messages may be lost.
+	Requires no storage of messages. e.g http requests.
+	
+--> At Least Once delivery guarantees that all messages will eventually be delivered.
+--> When a failure occurs:
+	- The messages may not have been delivered. The messages may have been delivered, but not acknowledged.
+--> Failure always result in a retry. Means messages may be delivered more than once, but they are never lost.
+--> Requrires messages be stored by the sender to enable retries.
+
+--> Exactly Once [Effectively Once Delivery] delivery is not possible, in event of network partition, or lost messages, we can't guarantee whether our message was received.
+--> Failure requires resending the message which creates potential duplicates.
+--> Exactly Once delivery can be simulated using: At Least Once delivery , deduplication or idempotence.
+--> It requires storage on both the sender and the receiver.
+
+--> Akka uses At Most Once delivery by default.
+--> Akka Persistence has an Option for At Least Once Delivery.
+--> Lagom supports both At Least once and At Most Once delivery through its message broker API
+
+===Messaging patterns=====
+--> When managing communication between microservices, there are two distinct approaches we can take.
+--> Each microservice can directly depend on other microservices, sending messages in a point to point fashion.
+--> Each microservice can leverage a publish/subscribe message broker or bus to decouple it from other services.
+--> In pub/sub, services are coupled to the message format, not to each other.
+
+--> Point to Point:
+    - Dependencies are more clear [we know what a microservice is dependent on]and distinct than pub/sub.
+    - Coupling is higher
+    - Complexity is more directly observable.
+-> Pub/Sub
+    - Dependencies are more flexible [add remove subscribers, producers etc].
+    - Coupling is lower.
+    - Complexity may be harder to see.
+    
+--> Both PTP, and Pub/Sub can be done internally or they may leverage an external service.
+--> An external message Bus may be used as the transport of messages for Publish/Subscribe.
+--> May use different conbinations of PTP, Pub/Sub with At Most Once Delivery or At Least Once Delivery. e.g kafka, RabitMQ, Kinesis etc
+
+--> Akka Actors are typically implemented with PTP messaging. Distributed Publishe/Subscribe implemenets Pub/Sub mechanism across a cluster.
+--> Persistence Query can also be used to implement a Pub/Sub mechanism.
+--> In Akka and Lagom, Publish/Subscribe can be done with or without an external message bus
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
