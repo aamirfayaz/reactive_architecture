@@ -1,6 +1,6 @@
-Neo4J
+Neo4J - Graph Database
 HBase
-CouchDB
+CouchDB - Document oriented
 Cassandra
 MongoDB
 Amazon DynamoDB
